@@ -9,25 +9,17 @@ export type AuthResponse = {
 };
 
 export const loginApi = async (input: LoginSchema) => {
-  try {
-    const response = await client.post<AuthResponse>("/auth/login", input);
-
-    console.log('my response', response);
-
-    return response.data;
-  } catch (error) {
-    console.error(error.response?.status, error.response?.data?.message);
-    return null;
-  }
+  const { data } = await client.post<AuthResponse>("/auth/login", input);
+  return data;
 };
 
 
 export const registerApi = async (input: RegisterSchema) => {
-  try {
-    const response = await client.post<AuthResponse>("/auth/register", input);
-    return response.data;
-  } catch (error) {
-    console.error(error.response?.status, error.response?.data?.message);
-    return null;
-  }
+  const { data } = await client.post<AuthResponse>("/auth/register", input);
+  return data;
 };
+
+export const whoamiApi = async (): Promise<{ user: User }> => {
+  const { data } = await client.get<{ user: User }>("/auth/whoami");
+  return data;
+}
