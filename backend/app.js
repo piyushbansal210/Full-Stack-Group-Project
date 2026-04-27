@@ -21,7 +21,7 @@ connectDB();
 
 app.use('/api/auth', authRoutes);
 
-// app.use(authMiddleware);
+app.use(authMiddleware);
 
 app.listen(PORT, (error) =>{
     if(!error)
