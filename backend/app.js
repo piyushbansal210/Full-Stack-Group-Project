@@ -1,9 +1,10 @@
 import 'dotenv/config';   
-
+import { authMiddleware } from './middleware.js/auth.middleware.js';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { connectDB } from './config/db.js';
+import authRoutes from './routes/auth.routes.js';
 
 const PORT = process.env.PORT || 5001;
 
@@ -17,6 +18,10 @@ app.get('/health', (req, res) => {
 });
 
 connectDB();
+
+app.use('/api/auth', authRoutes);
+
+// app.use(authMiddleware);
 
 app.listen(PORT, (error) =>{
     if(!error)
