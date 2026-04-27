@@ -12,12 +12,13 @@ export const login = async (req, res) => {
     try {
         const user = await User.findOne({ username: data.username });
         if (!user) {
-            return res.status(400).json({ message: 'User not found' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const isPasswordCorrect = await user.comparePassword(data.password);
         if (!isPasswordCorrect) {
-            return res.status(400).json({ message: 'Invalid password' });
+            //purposefully invalid credentials to prevent user enumeration
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
