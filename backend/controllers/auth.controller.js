@@ -21,7 +21,7 @@ export const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 
         return res.status(200).json({ message: 'Login successful', user: user.toJSON(), token });
     } catch (error) {
@@ -38,11 +38,11 @@ export const register = async (req, res) => {
     try {
         const userExists = await User.findOne({ username: data.username });
         if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(409).json({ message: 'User already exists' });
         }  
 
         const user = await User.create(data);
-        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 
         return res.status(201).json({ message: 'User created successfully', user: user.toJSON(), token });
     } catch (error) {
