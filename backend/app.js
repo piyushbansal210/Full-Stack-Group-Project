@@ -1,7 +1,22 @@
-const express = require('express');
+import 'dotenv/config';   
+
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import { connectDB } from './config/db.js';
+
+const PORT = process.env.PORT || 5001;
 
 const app = express();
-const PORT = 3000;
+app.use(express.json());
+app.use(cors());
+app.use(helmet());
+
+app.get('/health', (req, res) => {
+    res.status(200).json({ message: 'Server is running' });
+});
+
+connectDB();
 
 app.listen(PORT, (error) =>{
     if(!error)
