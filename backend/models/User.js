@@ -23,12 +23,19 @@ const UserSchema = new mongoose.Schema({
         enum: ['admin', 'user'],
         default: 'user',
     },
-})
+}, {
+    toJSON: {
+        transform: (doc, ret) => {
+            delete ret.password;
+            delete ret.__v;
+            return ret;
+        }
+    }
+});
 
 UserSchema.pre('save', async function(next) {
-    if (!this.isModified('password')) return next();
+    if (!this.isModified('password')) return;
     this.password = await bcrypt.hash(this.password, 10);
-    next();
 })
 
 UserSchema.methods.comparePassword = async function(enteredPassword){
