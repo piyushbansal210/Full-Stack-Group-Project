@@ -1,5 +1,5 @@
 import client from "./client";
-import type { LoginSchema } from "../schema/auth.schema";
+import type { LoginSchema, RegisterSchema } from "../schema/auth.schema";
 import type { User } from "../type/user";
 
 export type AuthResponse = {
@@ -8,7 +8,7 @@ export type AuthResponse = {
   token: string;
 };
 
-export const login = async (input: LoginSchema) => {
+export const loginApi = async (input: LoginSchema) => {
   try {
     const response = await client.post<AuthResponse>("/auth/login", input);
 
@@ -22,3 +22,12 @@ export const login = async (input: LoginSchema) => {
 };
 
 
+export const registerApi = async (input: RegisterSchema) => {
+  try {
+    const response = await client.post<AuthResponse>("/auth/register", input);
+    return response.data;
+  } catch (error) {
+    console.error(error.response?.status, error.response?.data?.message);
+    return null;
+  }
+};

@@ -1,16 +1,19 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { authSchema, type LoginSchema } from "../schema/auth.schema";
-import { login } from "../api/auth.api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useAuth } from "../hooks/useAuth";
+import Input from "../components/input";
+import Button from "../components/button";
 
 const LoginForm = () => {
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [globError, setGlobError] = useState<string | null>(null);
+  const { login } = useAuth();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [globError, setGlobError] = useState<string | null>(null);
 
   const {
-    register,
+    register: LoginSchema,
     handleSubmit,
     watch,
     formState: { errors },
@@ -18,33 +21,35 @@ const LoginForm = () => {
     resolver: zodResolver(authSchema.loginSchema),
   });
 
-  const onSubmit: SubmitHandler<LoginSchema> = async (data) => {
-    setIsSubmitting(true);
-    setGlobError(null);
-    const response = await login(data);
-    if (response?.message === 'Login successful') {
-      //TODO 
-    } else {
-      setGlobError(response?.message || 'An error occurred');
-    }
-    setIsSubmitting(false);
-  };
-
   const isDisabled = Object.keys(errors).length > 0;
+
+  const onSubmit: SubmitHandler<LoginSchema> = async (data) => {
+    await login(data);
+  }
 
   return (
     <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <input
+      <Input
+        label="Username"
         type="text"
-        placeholder="Username"
-        {...register("username", { required: "Username is required" })}
+        placeholder="Billyjoe123"
+        {...LoginSchema("username", { required: "Username is required" })}
       />
-      <input
+      <Input
+        label="Password"
         type="password"
-        placeholder="Password"
-        {...register("password", { required: "Password is required", minLength: { value: 8, message: "Password must be at least 8 characters" } })}
+        placeholder="********"
+        {...LoginSchema("password", {
+          required: "Password is required",
+          minLength: {
+            value: 8,
+            message: "Password must be at least 8 characters",
+          },
+        })}
       />
-      <button type="submit" disabled={isDisabled}>Login</button>
+      <Button type="submit" disabled={isDisabled}>
+        Login
+      </Button>
     </form>
   );
 };
