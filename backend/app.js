@@ -1,5 +1,4 @@
 import 'dotenv/config';   
-import { authMiddleware } from './middleware.js/auth.middleware.js';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
