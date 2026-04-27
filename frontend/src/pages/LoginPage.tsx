@@ -2,63 +2,66 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { authSchema, type LoginSchema } from "../schema/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import Input from "../components/input";
 import Button from "../components/button";
 
 const LoginForm = () => {
-  const { login } = useAuth();
+    const { login } = useAuth();
+    const navigate = useNavigate();
+    const [globError, setGlobError] = useState<string | null>(null);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [globError, setGlobError] = useState<string | null>(null);
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<LoginSchema>({
+        resolver: zodResolver(authSchema.loginSchema),
+    });
 
-  const {
-    register: LoginSchema,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(authSchema.loginSchema),
-  });
+    const onSubmit: SubmitHandler<LoginSchema> = async (data) => {
+        setGlobError(null);
+        try {
+            await login(data);
+            navigate('/');
+        } catch (err: any) {
+            setGlobError(err.response?.data?.message ?? 'Login failed');
+        }
+    };
 
-  const isDisabled = Object.keys(errors).length > 0;
+    return (
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+            <Input
+                label="Username"
+                type="text"
+                placeholder="Billyjoe123"
+                {...register("username")}
+            />
+            {errors.username && <span>{errors.username.message}</span>}
 
-  const onSubmit: SubmitHandler<LoginSchema> = async (data) => {
-    await login(data);
-  }
+            <Input
+                label="Password"
+                type="password"
+                placeholder="********"
+                {...register("password")}
+            />
+            {errors.password && <span>{errors.password.message}</span>}
 
-  return (
-    <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <Input
-        label="Username"
-        type="text"
-        placeholder="Billyjoe123"
-        {...LoginSchema("username", { required: "Username is required" })}
-      />
-      <Input
-        label="Password"
-        type="password"
-        placeholder="********"
-        {...LoginSchema("password", {
-          required: "Password is required",
-          minLength: {
-            value: 8,
-            message: "Password must be at least 8 characters",
-          },
-        })}
-      />
-      <Button type="submit" disabled={isDisabled}>
-        Login
-      </Button>
-    </form>
-  );
+            {globError && <p role="alert">{globError}</p>}
+
+            <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Logging in…' : 'Login'}
+            </Button>
+        </form>
+    );
 };
 
 export default function LoginPage() {
-  return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1>Login Page</h1>
-      <LoginForm />
-    </div>
-  );
+    return (
+        <div className="flex flex-col items-center justify-center h-screen">
+            <h1>Login Page</h1>
+            <LoginForm />
+        </div>
+    );
 }

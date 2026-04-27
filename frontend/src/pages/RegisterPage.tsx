@@ -1,71 +1,70 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { authSchema, type LoginSchema, type RegisterSchema } from "../schema/auth.schema";
+import { authSchema, type RegisterSchema } from "../schema/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import Input from "../components/input";
 import Button from "../components/button";
 
 const RegisterForm = () => {
-    const { register } = useAuth();
-
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { register: registerUser } = useAuth();
+    const navigate = useNavigate();
     const [globError, setGlobError] = useState<string | null>(null);
-  
-    const {
-      register: registerForm,
-      handleSubmit,
-      watch,
-      formState: { errors },
-    } = useForm({
-      resolver: zodResolver(authSchema.registerSchema),
-    });
-  
-    const isDisabled = Object.keys(errors).length > 0;
-  
-    const onSubmit: SubmitHandler<RegisterSchema> = async (data) => {
-      await register(data);
-    }
-  
-    return (
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-        <Input
-          label="Username"
-          type="text"
-          placeholder="Billyjoe123"
-          {...registerForm("username", { required: "Username is required" })}
-        />
-        <Input
-          label="Password"
-          type="password"
-          placeholder="********"
-          {...registerForm("password", {
-            required: "Password is required",
-            minLength: {
-              value: 8,
-              message: "Password must be at least 8 characters",
-            },
-          })}
-        />
-        <Input
-          label="Confirm Password"
-          type="password"
-          placeholder="********"
-          {...registerForm("confirmPassword", {
-            required: "Confirm Password is required",
-            minLength: {
-              value: 8,
-              message: "Confirm Password must be at least 8 characters",
-            },
-          })}
-        />
-        <Button type="submit" disabled={isDisabled}>
-          Register
-        </Button>
-      </form>
-    );
-  };
 
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+    } = useForm<RegisterSchema>({
+        resolver: zodResolver(authSchema.registerSchema),
+    });
+
+    const onSubmit: SubmitHandler<RegisterSchema> = async (data) => {
+        setGlobError(null);
+        try {
+            const { confirmPassword, ...payload } = data;
+            await registerUser(payload);
+            navigate('/');
+        } catch (err: any) {
+            setGlobError(err.response?.data?.message ?? 'Registration failed');
+        }
+    };
+
+    return (
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+            <Input
+                label="Username"
+                type="text"
+                placeholder="Billyjoe123"
+                {...register("username")}
+            />
+            {errors.username && <span>{errors.username.message}</span>}
+
+            <Input
+                label="Password"
+                type="password"
+                placeholder="********"
+                {...register("password")}
+            />
+            {errors.password && <span>{errors.password.message}</span>}
+
+            <Input
+                label="Confirm Password"
+                type="password"
+                placeholder="********"
+                {...register("confirmPassword")}
+            />
+            {errors.confirmPassword && <span>{errors.confirmPassword.message}</span>}
+
+            {globError && <p role="alert">{globError}</p>}
+
+            <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Registering…' : 'Register'}
+            </Button>
+        </form>
+    );
+};
 
 export default function RegisterPage() {
     return (
@@ -73,5 +72,5 @@ export default function RegisterPage() {
             <h1>Register Page</h1>
             <RegisterForm />
         </div>
-    )
+    );
 }
