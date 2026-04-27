@@ -17,8 +17,8 @@ const seedData = async () => {
         console.log("Database cleared");
 
         const users = await User.insertMany([
-            { name: "LeBron", hashedPassword: "saltedAndHashedPassword", isAdmin: true },
-            { name: "Alice", hashedPassword: "saltedAndHashedPassword", isAdmin: false },
+            { username: "LeBron", hashedPassword: "saltedAndHashedPassword", isAdmin: true },
+            { username: "Alice", hashedPassword: "saltedAndHashedPassword", isAdmin: false },
         ]);
 
         const questions = await Question.insertMany([

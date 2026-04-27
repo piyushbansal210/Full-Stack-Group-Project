@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import 'dotenv/config';   
 
 import express from 'express';
 import cors from 'cors';
@@ -18,10 +18,10 @@ app.get('/health', (req, res) => {
 
 connectDB();
 
-app.listen(PORT, (error) => {
-    if (!error)
-        console.log("Server is Successfully Running, and App is listening on port " + PORT);
-    else
+app.listen(PORT, (error) =>{
+    if(!error)
+        console.log("Server is Successfully Running, and App is listening on port "+ PORT);
+    else 
         console.log("Error occurred, server can't start", error);
-}
+    }
 );
