@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const client = axios.create({
-    baseURL: 'http://localhost:5001/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
 // interceptor to add jwt token to each request 
@@ -12,5 +12,16 @@ client.interceptors.request.use((config) => {
     }
     return config;
 });
+
+// rm old/ bad/ stale tokens
+client.interceptors.response.use(
+    (res) => res,
+    (err) => {
+        if (err.response?.status === 401) {
+            localStorage.removeItem('token');
+        }
+        return Promise.reject(err);
+    }
+);
 
 export default client;
