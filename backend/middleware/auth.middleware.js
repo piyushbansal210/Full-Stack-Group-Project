@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 export const authMiddleware = async (req, res, next) => {
-    console.log('AuthMiddleware');
+    // console.log('AuthMiddleware');
 
     const authHeader = (req.headers.authorization);
 
